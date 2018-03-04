@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
+import {Link} from 'react-router-dom'
 import { Row, Col, Menu, Icon, Button, Input,Tabs, Form,
     Checkbox, message, Modal } from 'antd'
+import '../../css/pc.css'
 const FormItem = Form.Item
 const TabPane = Tabs.TabPane;
 // const SubMenu = Menu.SubMenu;
 // const MenuItemGroup = Menu.ItemGroup;
-//import '../../css/pc.css'
+
 
 class PCHeader extends Component {
     constructor() {
@@ -14,12 +16,17 @@ class PCHeader extends Component {
             current: 'top',
             modalVisible: false,
             action: 'login',
-            hasLoggedin: false,
+            hasLogined: false,
             userNickName: '',
             userId: 0
         };
     }
-
+    componentWillMount(){
+        if (localStorage.userid!='') {
+            this.setState({hasLogined:true});
+            this.setState({userNickName:localStorage.userNickName,userid:localStorage.userid});
+        }
+    };
     setModalVisible(value) {
         this.setState({modalVisible:value})
     }
@@ -51,9 +58,24 @@ class PCHeader extends Component {
             .then(json => {
                 this.setState({userNickName: json.NickUserName, userid: json.UserId});
             });
+        if (this.state.action=="login") {
+            this.setState({hasLogined:true});
+        }
         message.success("请求成功！");
         this.setModalVisible(false);
     }
+    callback(key) {
+        if (key == 1) {
+            this.setState({action: 'login'});
+        } else if (key == 2) {
+            this.setState({action: 'register'});
+        }
+    };
+    logout(){
+        localStorage.userid= '';
+        localStorage.userNickName = '';
+        this.setState({hasLogined:false});
+    };
 
     render() {
         let {getFieldProps} = this.props.form;
@@ -67,7 +89,7 @@ class PCHeader extends Component {
                     个人中心
                     </Button>
                 </a>&nbsp;&nbsp;
-                <Button type="ghost" htmlType="button" >
+                <Button type="ghost" htmlType="button" onClick={this.logout.bind(this)}>
                     退出
                 </Button>
             </Menu.Item>
@@ -116,6 +138,17 @@ class PCHeader extends Component {
 
                 <Modal title="用户中心" wrapClassName="vertical-center-modal" visible={this.state.modalVisible} onCancel= {()=>this.setModalVisible(false)} onOk={()=>this.setModalVisible(false)} okText = "关闭">
                     <Tabs type="card">
+                        <TabPane tab="登录" key="1">
+                            <Form horizontal onSubmit={this.handleSubmit.bind(this)}>
+                                <FormItem label="账户">
+                                    <Input placeholder="请输入您的账号" {...getFieldProps('userName')}/>
+                                </FormItem>
+                                <FormItem label="密码">
+                                    <Input type="password" placeholder="请输入您的密码" {...getFieldProps('password')}/>
+                                </FormItem>
+                                <Button type="primary" htmlType="submit">登录</Button>
+                            </Form>
+                        </TabPane>
                         <TabPane tab="注册" key="2">
                             <Form horizontal onSubmit={this.handleSubmit.bind(this)}>
                                 <FormItem label="账户">
@@ -132,7 +165,6 @@ class PCHeader extends Component {
                         </TabPane>
                     </Tabs>
                 </Modal>
-
             </div>
         );
     }

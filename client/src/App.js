@@ -3,6 +3,7 @@ import { Router, Route, hashHistory } from 'react-router'
 import PCIndex from './js/components/pc_index'
 import MobileIndex from './js/components/mobile_index'
 
+
 import MediaQuery from 'react-responsive'
 import 'antd/dist/antd.css'
 
